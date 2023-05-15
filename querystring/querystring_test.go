@@ -56,6 +56,6 @@ func TestProcess_WithMissingRequiredField(t *testing.T) {
 			t.Errorf("assert 'err.Field':: expected '%v', got '%v'", "type", e.Field)
 		}
 	} else {
-		t.Errorf("the error except 'structprototype.MissingRequiredFieldError', got '%T'", err)
+		t.Errorf("the error expect 'structprototype.MissingRequiredFieldError', got '%T'", err)
 	}
 }
