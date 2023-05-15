@@ -14,6 +14,7 @@ import (
 
 var (
 	typeOfJsonRawMessage = reflect.TypeOf(json.RawMessage(nil))
+	typeOfAny            = reflect.TypeOf([]interface{}{nil}).Elem()
 )
 
 var _ structproto.ValueBinder = new(JsonValueBinder)
@@ -101,7 +102,12 @@ func (binder JsonValueBinder) bindJsonValue(rv reflect.Value, content interface{
 			}
 			return binder.bindJsonObject(rv, jsonObject)
 		case reflect.Map:
-			return fmt.Errorf("not implemented")
+			var jsonMap map[string]interface{}
+			if rv.Type().Key().Kind() != reflect.String {
+				return fmt.Errorf("not implemented")
+			}
+			jsonMap, _ = content.(map[string]interface{})
+			return binder.bindJsonMap(rv, jsonMap)
 		default:
 			return err
 		}
@@ -133,6 +139,17 @@ func (binder JsonValueBinder) bindJsonObject(rv reflect.Value, content map[strin
 		return err
 	}
 	return prototype.BindFields(content, BuildJsonValueBinder)
+}
+
+func (binder JsonValueBinder) bindJsonMap(rv reflect.Value, content map[string]interface{}) error {
+	if rv.Type().Elem() == typeOfAny {
+		if content != nil && len(content) > 0 {
+			rv.Set(reflect.ValueOf(content))
+		}
+		return nil
+	}
+
+	return fmt.Errorf("unsupported type map[string]%s", rv.Type().Elem().String())
 }
 
 func (binder JsonValueBinder) marshalContent(content interface{}) (interface{}, error) {
