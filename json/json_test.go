@@ -17,7 +17,8 @@ type DummyRequestArg struct {
 	Tags        []string         `json:"tags"`
 	Raw         *json.RawMessage `json:"raw"`
 
-	Detail *DummyRequestArgDetail `json:"detail"`
+	Detail    *DummyRequestArgDetail `json:"detail"`
+	ExtraInfo map[string]interface{} `json:"extraInfo"`
 }
 
 type DummyRequestArgDetail struct {
@@ -33,6 +34,10 @@ func TestProcess_WithStruct(t *testing.T) {
 		"tags": ["T","ER","XVV"],
 		"detail": {
 			"operator": "nami"
+		},
+		"extraInfo": {
+			"alias": "Cat Burglar",
+			"age"  : 18
 		}
 	}`
 
@@ -62,7 +67,7 @@ func TestProcess_WithStruct(t *testing.T) {
 	if arg.EnableDebug != expectedEnableDebug {
 		t.Errorf("assert 'DummyRequestArg.EnableDebug':: expected '%v', got '%v'", expectedEnableDebug, arg.EnableDebug)
 	}
-	expectedTags := []string{"T", "ER", "XVV"}
+	var expectedTags = []string{"T", "ER", "XVV"}
 	if !reflect.DeepEqual(arg.Tags, expectedTags) {
 		t.Errorf("assert 'character.Alias':: expected '%#v', got '%#v'", expectedTags, arg.Tags)
 	}
@@ -73,6 +78,25 @@ func TestProcess_WithStruct(t *testing.T) {
 		var detail = arg.Detail
 		if detail.Operator != "nami" {
 			t.Errorf("assert 'DummyRequestArg.Detail.Operator':: expected '%v', got '%v'", "nami", detail.Operator)
+		}
+	}
+	var expectedExtraInfo map[string]interface{} = map[string]interface{}{
+		"alias": "Cat Burglar",
+		"age":   json.Number("18"),
+	}
+	if arg.ExtraInfo == nil || len(arg.ExtraInfo) != len(expectedExtraInfo) {
+		t.Errorf("assert 'DummyRequestArg.ExtraInfo':: expected '%+v', got '%+v'", expectedExtraInfo, arg.ExtraInfo)
+	}
+	{
+		for k, v := range expectedExtraInfo {
+			expectedExtraInfoValue := v
+			actualExtraInfoValue, ok := arg.ExtraInfo[k]
+			if !ok {
+				t.Errorf("assert 'DummyRequestArg.ExtraInfo':: missing key '%s'", k)
+			}
+			if !reflect.DeepEqual(actualExtraInfoValue, expectedExtraInfoValue) {
+				t.Errorf("assert 'DummyRequestArg.ExtraInfo[%s]':: expected '%+v', got '%+v'", k, expectedExtraInfoValue, actualExtraInfoValue)
+			}
 		}
 	}
 }
