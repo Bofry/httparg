@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"github.com/Bofry/structproto/util/reflectutil"
+	"github.com/Bofry/structproto/reflecting"
 )
 
 const (
@@ -18,7 +18,7 @@ var (
 	ContentProcessServiceInstance = new(ContentProcessService)
 	ContentProcessRegistryService = newContentProcessRegistry(ContentProcessServiceInstance)
 
-	assignZero = reflectutil.AssignZero
+	assignZero = reflecting.AssignZero
 )
 
 type (

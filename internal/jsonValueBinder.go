@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/Bofry/structproto"
-	"github.com/Bofry/structproto/util/reflectutil"
 	"github.com/Bofry/structproto/valuebinder"
 )
 
@@ -33,7 +32,7 @@ func (binder JsonValueBinder) bindJsonValue(rv reflect.Value, content interface{
 	switch rv.Type() {
 	case typeOfJsonRawMessage:
 		// TODO create JsonRawMessageBinder !!!
-		rv = reflect.Indirect(reflectutil.AssignZero(rv))
+		rv = reflect.Indirect(assignZero(rv))
 		b, err := json.Marshal(content)
 		if err != nil {
 			return &valuebinder.ValueBindingError{
@@ -46,10 +45,8 @@ func (binder JsonValueBinder) bindJsonValue(rv reflect.Value, content interface{
 		return nil
 	}
 
-	// perform normal binding
-	scalarValueBinder := valuebinder.ScalarBinder(rv)
-	err := scalarValueBinder.Bind(content)
-	if err != nil {
+	var err error
+	{
 		switch rv.Kind() {
 		case reflect.Array, reflect.Slice:
 			var jsonArray []interface{}
@@ -101,18 +98,14 @@ func (binder JsonValueBinder) bindJsonValue(rv reflect.Value, content interface{
 					Err:   err}
 			}
 			return binder.bindJsonObject(rv, jsonObject)
-		case reflect.Map:
-			var jsonMap map[string]interface{}
-			if rv.Type().Key().Kind() != reflect.String {
-				return fmt.Errorf("not implemented")
-			}
-			jsonMap, _ = content.(map[string]interface{})
-			return binder.bindJsonMap(rv, jsonMap)
-		default:
-			return err
 		}
 	}
-	return nil
+	if rv.IsZero() {
+		// perform normal binding
+		scalarValueBinder := valuebinder.ScalarBinder(rv)
+		err = scalarValueBinder.Bind(content)
+	}
+	return err
 }
 
 func (binder JsonValueBinder) bindJsonArray(rv reflect.Value, content []interface{}) error {
@@ -138,7 +131,8 @@ func (binder JsonValueBinder) bindJsonObject(rv reflect.Value, content map[strin
 	if err != nil {
 		return err
 	}
-	return prototype.BindFields(content, BuildJsonValueBinder)
+	fmt.Println("JsonValueBinder.bindJsonObject()")
+	return prototype.BindMap(content, BuildJsonValueBinder)
 }
 
 func (binder JsonValueBinder) bindJsonMap(rv reflect.Value, content map[string]interface{}) error {

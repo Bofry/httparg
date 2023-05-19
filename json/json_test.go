@@ -17,8 +17,7 @@ type DummyRequestArg struct {
 	Tags        []string         `json:"tags"`
 	Raw         *json.RawMessage `json:"raw"`
 
-	Detail    *DummyRequestArgDetail `json:"detail"`
-	ExtraInfo map[string]interface{} `json:"extraInfo"`
+	Detail *DummyRequestArgDetail `json:"detail"`
 }
 
 type DummyRequestArgDetail struct {
@@ -80,9 +79,76 @@ func TestProcess_WithStruct(t *testing.T) {
 			t.Errorf("assert 'DummyRequestArg.Detail.Operator':: expected '%v', got '%v'", "nami", detail.Operator)
 		}
 	}
+}
+
+func TestProcess_WithStruct_MapStringInterface(t *testing.T) {
+	input := `{
+		"id": "F0003452",
+		"extraInfo": {
+			"alias": "Cat Burglar",
+			"age"  : 18
+		}
+	}`
+
+	arg := struct {
+		ID        string                 `json:"*id"`
+		ExtraInfo map[string]interface{} `json:"extraInfo"`
+	}{}
+	err := Process([]byte(input), &arg)
+	if err != nil {
+		t.Error(err)
+	}
+
+	var expectedID string = "F0003452"
+	if arg.ID != expectedID {
+		t.Errorf("assert 'DummyRequestArg.ID':: expected '%v', got '%v'", expectedID, arg.ID)
+	}
 	var expectedExtraInfo map[string]interface{} = map[string]interface{}{
 		"alias": "Cat Burglar",
 		"age":   json.Number("18"),
+	}
+	if arg.ExtraInfo == nil || len(arg.ExtraInfo) != len(expectedExtraInfo) {
+		t.Errorf("assert 'DummyRequestArg.ExtraInfo':: expected '%+v', got '%+v'", expectedExtraInfo, arg.ExtraInfo)
+	}
+	{
+		for k, v := range expectedExtraInfo {
+			expectedExtraInfoValue := v
+			actualExtraInfoValue, ok := arg.ExtraInfo[k]
+			if !ok {
+				t.Errorf("assert 'DummyRequestArg.ExtraInfo':: missing key '%s'", k)
+			}
+			if !reflect.DeepEqual(actualExtraInfoValue, expectedExtraInfoValue) {
+				t.Errorf("assert 'DummyRequestArg.ExtraInfo[%s]':: expected '%+v', got '%+v'", k, expectedExtraInfoValue, actualExtraInfoValue)
+			}
+		}
+	}
+}
+
+func TestProcess_WithStruct_MapStringString(t *testing.T) {
+	input := `{
+		"id": "F0003452",
+		"extraInfo": {
+			"alias": "Cat Burglar",
+			"age"  : 18
+		}
+	}`
+
+	arg := struct {
+		ID        string            `json:"*id"`
+		ExtraInfo map[string]string `json:"extraInfo"`
+	}{}
+	err := Process([]byte(input), &arg)
+	if err != nil {
+		t.Error(err)
+	}
+
+	var expectedID string = "F0003452"
+	if arg.ID != expectedID {
+		t.Errorf("assert 'DummyRequestArg.ID':: expected '%v', got '%v'", expectedID, arg.ID)
+	}
+	var expectedExtraInfo map[string]string = map[string]string{
+		"alias": "Cat Burglar",
+		"age":   "18",
 	}
 	if arg.ExtraInfo == nil || len(arg.ExtraInfo) != len(expectedExtraInfo) {
 		t.Errorf("assert 'DummyRequestArg.ExtraInfo':: expected '%+v', got '%+v'", expectedExtraInfo, arg.ExtraInfo)

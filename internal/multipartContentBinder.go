@@ -45,7 +45,7 @@ func (binder *MultipartContentBinder) Init(context *structproto.StructProtoConte
 					rv = assignZero(rv)
 					err = binder.contentProcessService.Process(rv, body, contentType)
 				} else {
-					err = valuebinder.BuildBytesArgsBinder(rv).Bind(body)
+					err = valuebinder.BuildBytesBinder(rv).Bind(body)
 				}
 
 				if err != nil {

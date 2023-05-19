@@ -33,7 +33,7 @@ func (binder *QueryArgsBinder) Bind(field structproto.FieldInfo, rv reflect.Valu
 				v[0] = True
 			}
 		}
-		return valuebinder.StringArgsBinder(rv).Bind(v[0])
+		return valuebinder.BuildStringBinder(rv).Bind(v[0])
 	}
 	return nil
 }
