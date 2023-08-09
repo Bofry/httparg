@@ -131,7 +131,6 @@ func (binder JsonValueBinder) bindJsonObject(rv reflect.Value, content map[strin
 	if err != nil {
 		return err
 	}
-	fmt.Println("JsonValueBinder.bindJsonObject()")
 	return prototype.BindMap(content, BuildJsonValueBinder)
 }
 
