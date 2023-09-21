@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/Bofry/arg"
+	"github.com/Bofry/httparg/body"
 	"github.com/Bofry/httparg/form"
 	"github.com/Bofry/httparg/internal"
 	"github.com/Bofry/httparg/json"
@@ -25,8 +26,9 @@ var (
 	stdErrorHandler = func(err error) { panic(err) }
 
 	canonicalContentProcessors = map[string]ContentProcessor{
-		"application/octet-stream":          nil,
-		"text/plain":                        nil,
+		"":                                  body.Process,
+		"application/octet-stream":          body.Process,
+		"text/plain":                        body.Process,
 		"application/x-www-form-urlencoded": form.Process,
 		"application/json":                  json.Process,
 	}

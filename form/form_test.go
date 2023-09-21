@@ -1,9 +1,10 @@
-package form
+package form_test
 
 import (
 	"reflect"
 	"testing"
 
+	"github.com/Bofry/httparg/form"
 	"github.com/Bofry/structproto"
 )
 
@@ -19,26 +20,21 @@ func TestProcess(t *testing.T) {
 	input := "id=F0003452&type=KNNS&SHOW_DETAIL&tags=T,ER,XVV"
 
 	args := DummyRequestArg{}
-	err := Process([]byte(input), &args)
+	err := form.Process([]byte(input), &args)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if args.ID != "F0003452" {
-		t.Errorf("assert 'DummyRequestArg.ID':: expected '%v', got '%v'", "F0003452", args.ID)
+	expected := DummyRequestArg{
+		ID:          "F0003452",
+		Type:        "KNNS",
+		ShowDetail:  true,
+		EnableDebug: false,
+		Tags:        []string{"T", "ER", "XVV"},
 	}
-	if args.Type != "KNNS" {
-		t.Errorf("assert 'DummyRequestArg.Type':: expected '%v', got '%v'", "KNNS", args.Type)
-	}
-	if args.ShowDetail != true {
-		t.Errorf("assert 'DummyRequestArg.ShowDetail':: expected '%v', got '%v'", true, args.ShowDetail)
-	}
-	if args.EnableDebug != false {
-		t.Errorf("assert 'DummyRequestArg.EnableDebug':: expected '%v', got '%v'", false, args.EnableDebug)
-	}
-	expectedTags := []string{"T", "ER", "XVV"}
-	if !reflect.DeepEqual(args.Tags, expectedTags) {
-		t.Errorf("assert 'character.Alias':: expected '%#v', got '%#v'", expectedTags, args.Tags)
+
+	if !reflect.DeepEqual(args, expected) {
+		t.Errorf("assert DummyRequestArg:: expected '%#v', got '%#v'", expected, args)
 	}
 }
 
@@ -46,7 +42,7 @@ func TestProcess_WithMissingRequiredField(t *testing.T) {
 	input := "id=F0003452&SHOW_DETAIL"
 
 	args := DummyRequestArg{}
-	err := Process([]byte(input), &args)
+	err := form.Process([]byte(input), &args)
 
 	if err == nil {
 		t.Errorf("the 'ResolveQueryString()' should throw '%s' error", "with missing required symbol 'type'")

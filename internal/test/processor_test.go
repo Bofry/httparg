@@ -206,7 +206,7 @@ func TestValidatable(t *testing.T) {
 	if buffer.Len() == 0 {
 		t.Errorf("buffer should not be empty")
 	}
-	expectedErrMsg := "invalid argument 'id'; cannot be 0"
+	expectedErrMsg := `invalid argument "id"; cannot be 0`
 	if buffer.String() != expectedErrMsg {
 		t.Errorf("assert 'buffer.String()':: expected '%v', got '%v'", expectedErrMsg, buffer.String())
 	}

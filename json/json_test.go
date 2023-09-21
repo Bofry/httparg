@@ -1,10 +1,11 @@
-package json
+package json_test
 
 import (
 	"encoding/json"
 	"reflect"
 	"testing"
 
+	httpargjson "github.com/Bofry/httparg/json"
 	"github.com/Bofry/structproto"
 )
 
@@ -41,7 +42,7 @@ func TestProcess_WithStruct(t *testing.T) {
 	}`
 
 	arg := DummyRequestArg{}
-	err := Process([]byte(input), &arg)
+	err := httpargjson.Process([]byte(input), &arg)
 	if err != nil {
 		t.Error(err)
 	}
@@ -94,7 +95,7 @@ func TestProcess_WithStruct_MapStringInterface(t *testing.T) {
 		ID        string                 `json:"*id"`
 		ExtraInfo map[string]interface{} `json:"extraInfo"`
 	}{}
-	err := Process([]byte(input), &arg)
+	err := httpargjson.Process([]byte(input), &arg)
 	if err != nil {
 		t.Error(err)
 	}
@@ -137,7 +138,7 @@ func TestProcess_WithStruct_MapStringString(t *testing.T) {
 		ID        string            `json:"*id"`
 		ExtraInfo map[string]string `json:"extraInfo"`
 	}{}
-	err := Process([]byte(input), &arg)
+	err := httpargjson.Process([]byte(input), &arg)
 	if err != nil {
 		t.Error(err)
 	}
@@ -180,7 +181,7 @@ func TestProcess_WithStructError(t *testing.T) {
 	}`
 
 	arg := DummyRequestArg{}
-	err := Process([]byte(input), &arg)
+	err := httpargjson.Process([]byte(input), &arg)
 	if err == nil {
 		t.Errorf("the 'Process()' should throw '%s' error", "missing required symbol 'type'")
 	} else {
@@ -207,7 +208,7 @@ func TestProcess_WithArray(t *testing.T) {
 	}]`
 
 	args := []DummyRequestArg{}
-	err := Process([]byte(input), &args)
+	err := httpargjson.Process([]byte(input), &args)
 	if err != nil {
 		t.Error(err)
 	}
@@ -262,7 +263,7 @@ func TestProcess_WithRaw(t *testing.T) {
 	}`
 
 	arg := DummyRequestArg{}
-	err := Process([]byte(input), &arg)
+	err := httpargjson.Process([]byte(input), &arg)
 	if err != nil {
 		t.Error(err)
 	}
