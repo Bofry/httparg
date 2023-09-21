@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"strings"
 )
 
 type ContentProcessService struct {
@@ -11,9 +12,19 @@ type ContentProcessService struct {
 }
 
 func (service *ContentProcessService) Process(target interface{}, content []byte, contentType string) error {
-	mediatype, err := ParseContentType(contentType)
-	if err != nil {
-		return err
+	var (
+		mediatype ContentType = ContentType{}
+		err       error
+	)
+
+	// remove all spaces
+	contentType = strings.Trim(contentType, " ")
+
+	if contentType != "" {
+		mediatype, err = ParseContentType(contentType)
+		if err != nil {
+			return err
+		}
 	}
 
 	processor := service.getProcessor(mediatype)
